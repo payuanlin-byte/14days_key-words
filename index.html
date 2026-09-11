@@ -3,212 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>单词自动化学习原型 - 进阶版</title>
+    <title>Tab 1: New Words 学习动线测试</title>
     <style>
         body { font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, sans-serif; background-color: #f0fdf4; color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .container { background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 30px; width: 100%; max-width: 500px; text-align: center; }
+        .container { background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 30px; width: 100%; max-width: 600px; text-align: center; min-height: 400px;}
         
-        .input-group { margin-bottom: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-        input { padding: 12px; font-size: 16px; border: 2px solid #e2e8f0; border-radius: 10px; width: 50%; outline: none; }
-        input:focus { border-color: #3b82f6; }
-        button { padding: 12px 18px; font-size: 16px; font-weight: bold; border: none; border-radius: 10px; background-color: #3b82f6; color: white; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2); }
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3); }
-        button:active { transform: translateY(0); }
+        /* 顶部 Tab 样式 */
+        .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
+        .tab-btn { padding: 10px 20px; font-size: 18px; font-weight: bold; border: none; background: transparent; color: #94a3b8; cursor: pointer; }
+        .tab-btn.active { color: #3b82f6; border-bottom: 3px solid #3b82f6; }
+
+        /* 选词区 */
+        .word-selector { margin-bottom: 20px; }
+        .word-btn { background-color: #eff6ff; color: #3b82f6; border: 2px solid #bfdbfe; border-radius: 10px; padding: 10px 15px; margin: 0 5px; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .word-btn:hover { background-color: #dbeafe; }
+        .word-btn.completed { background-color: #d1fae5; color: #059669; border-color: #6ee7b7; }
+
+        /* 核心展示区 */
+        .step-container { display: none; animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        .shortcut-btn { background-color: #eff6ff; color: #3b82f6; box-shadow: none; font-size: 14px; padding: 8px 15px; }
-        .shortcut-btn:hover { background-color: #dbeafe; box-shadow: none; }
-        
-        .word-display { font-size: 54px; font-weight: 800; margin: 10px 0 0 0; color: #1e293b; letter-spacing: 2px; }
+        .word-display { font-size: 54px; font-weight: 800; color: #1e293b; letter-spacing: 2px; margin: 10px 0; }
         .phonetic-display { font-size: 20px; color: #64748b; margin-bottom: 20px; font-family: 'Arial', sans-serif; }
         
         .syllable-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .syllable-box { padding: 10px 20px; border-radius: 12px; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
         .syllable-box:hover { transform: scale(1.05); }
-        
-        .practice-area { margin-top: 30px; padding-top: 20px; border-top: 2px dashed #cbd5e1; display: none; background-color: #f8fafc; border-radius: 16px; }
-        .scramble-btn { background-color: white; color: #333; border: 2px solid #e2e8f0; margin: 5px; font-size: 24px; padding: 10px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* Step 3: 重组 */
+        .scramble-btn { background-color: white; color: #333; border: 2px solid #e2e8f0; margin: 5px; font-size: 24px; padding: 10px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 10px; cursor: pointer; }
         .scramble-btn.selected { visibility: hidden; }
-        
-        #message { margin-top: 15px; font-size: 18px; font-weight: bold; color: #10b981; min-height: 28px; }
-        
-        /* 播放按钮样式 */
-        .play-btn { background-color: #10b981; border-radius: 50px; padding: 12px 25px; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-        .play-btn:hover { background-color: #059669; }
+
+        /* Step 4: 默写与提示 */
+        .hint-blocks { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+        .hint-block { width: 60px; height: 50px; background-color: #cbd5e1; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .hint-block.revealed { background-color: transparent; border: 2px solid #e2e8f0; }
+        .type-input { font-size: 24px; padding: 10px; text-align: center; width: 60%; border: 2px dashed #94a3b8; border-radius: 10px; outline: none; margin-bottom: 10px; }
+        .type-input:focus { border-color: #3b82f6; }
+
+        /* Step 5: 图片选择 */
+        .img-options { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
+        .img-card { font-size: 60px; padding: 20px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px; cursor: pointer; transition: 0.2s; }
+        .img-card:hover { transform: scale(1.1); border-color: #3b82f6; background: #eff6ff; }
+
+        /* Step 6: 语境 */
+        .context-box { font-size: 26px; padding: 30px; background: #fffbeb; border: 2px solid #fde68a; border-radius: 15px; margin-top: 20px; color: #333; cursor: pointer; }
+        .blank-space { display: inline-block; width: 100px; border-bottom: 3px solid #333; height: 30px; margin: 0 10px; vertical-align: middle; }
+        .filled-word { color: #2563eb; font-weight: bold; text-decoration: underline; }
+
+        /* 通用按钮 */
+        .action-btn { background-color: #10b981; color: white; border: none; padding: 12px 25px; font-size: 18px; border-radius: 50px; cursor: pointer; margin-top: 20px; font-weight: bold; }
+        .action-btn:hover { background-color: #059669; }
+        .feedback { font-size: 20px; font-weight: bold; color: #ef4444; margin-top: 15px; min-height: 30px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>✨ 趣味自然拼读</h2>
-    
-    <div class="input-group">
-        <button class="shortcut-btn" onclick="document.getElementById('wordInput').value='glasses'; generate()">glasses</button>
-        <button class="shortcut-btn" onclick="document.getElementById('wordInput').value='fashion'; generate()">fashion</button>
-        <button class="shortcut-btn" onclick="document.getElementById('wordInput').value='group'; generate()">group</button>
+    <div class="tabs">
+        <button class="tab-btn active">🌟 Tab 1: New Words</button>
+        <button class="tab-btn" onclick="alert('即将开发：盲猜与复习模式')">🛡️ Tab 2: Review</button>
     </div>
 
-    <div class="input-group">
-        <input type="text" id="wordInput" placeholder="输入单词..." value="glasses">
-        <button onclick="generate()">生成卡片</button>
-    </div>
-
-    <div id="learningArea" style="display:none;">
-        <button class="play-btn" onclick="speakFullWord()">🔊 听整词发音</button>
-        <div class="word-display" id="mainWord"></div>
-        <div class="phonetic-display" id="phoneticText"></div>
-        
-        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 10px;">点击下方彩色音节，听拆分慢读：</p>
-        <div class="syllable-container" id="syllableArea"></div>
-
-        <div class="practice-area" id="practiceArea">
-            <h3 style="color: #475569; margin-top: 0;">互动挑战：按顺序拼回单词</h3>
-            <div id="scrambleArea"></div>
-            <div id="message"></div>
-        </div>
-    </div>
-</div>
-
-<script>
-    // 词典数据库：包含音标、色彩搭配配置，以及本地音频指向
-    const dictionary = {
-        'glasses': {
-            phonetic: '[ˈɡlæsɪz]',
-            audio: 'glasses.mp3', // 指向同文件夹下的本地 mp3
-            syllables: [
-                { text: 'glass', colorText: '#ef4444', colorBg: '#fee2e2', borderColor: '#fca5a5' }, // 红色系
-                { text: 'es', colorText: '#3b82f6', colorBg: '#dbeafe', borderColor: '#93c5fd' }    // 蓝色系
-            ]
-        },
-        'fashion': {
-            phonetic: '[ˈfæʃn]',
-            audio: null, // 没有本地音频，将自动回退使用浏览器 TTS AI 语音
-            syllables: [
-                { text: 'fash', colorText: '#f59e0b', colorBg: '#fef3c7', borderColor: '#fcd34d' }, // 橙色系
-                { text: 'ion', colorText: '#10b981', colorBg: '#d1fae5', borderColor: '#6ee7b7' }   // 绿色系
-            ]
-        },
-        'group': {
-            phonetic: '[ɡruːp]',
-            audio: null,
-            syllables: [
-                { text: 'group', colorText: '#8b5cf6', colorBg: '#ede9fe', borderColor: '#c4b5fd' } // 紫色系
-            ]
-        }
-    };
-
-    let currentWord = '';
-    let currentData = null;
-    let practiceTarget = [];
-
-    function generate() {
-        const input = document.getElementById('wordInput').value.trim().toLowerCase();
-        if(!input) return;
-
-        currentWord = input;
-        
-        // 判断词库中是否有该词的精细配置
-        if (dictionary[input]) {
-            currentData = dictionary[input];
-        } else {
-            // 如果输入了词库外的单词，自动生成通用格式
-            currentData = {
-                phonetic: '[音标暂缺]',
-                audio: null,
-                syllables: [{ text: input, colorText: '#475569', colorBg: '#f1f5f9', borderColor: '#cbd5e1' }]
-            };
-        }
-        
-        document.getElementById('learningArea').style.display = 'block';
-        document.getElementById('mainWord').innerText = currentWord;
-        document.getElementById('phoneticText').innerText = currentData.phonetic;
-        document.getElementById('practiceArea').style.display = 'block';
-        document.getElementById('message').innerText = '';
-
-        renderSyllables();
-        renderPractice();
-        
-        // 延迟0.5秒播放发音，让孩子先看到画面
-        setTimeout(speakFullWord, 500);
-    }
-
-    function renderSyllables() {
-        const area = document.getElementById('syllableArea');
-        area.innerHTML = '';
-        currentData.syllables.forEach(syl => {
-            const span = document.createElement('span');
-            span.className = 'syllable-box';
-            span.innerText = syl.text;
-            // 应用色彩搭配
-            span.style.color = syl.colorText;
-            span.style.backgroundColor = syl.colorBg;
-            span.style.borderColor = syl.borderColor;
-            
-            span.onclick = () => speakText(syl.text, 0.7); // 0.7倍速慢读音节
-            area.appendChild(span);
-        });
-    }
-
-    function renderPractice() {
-        const area = document.getElementById('scrambleArea');
-        area.innerHTML = '';
-        practiceTarget = [];
-        
-        // 打乱音节顺序
-        let scrambled = [...currentData.syllables].sort(() => Math.random() - 0.5);
-        
-        scrambled.forEach((syl) => {
-            const btn = document.createElement('button');
-            btn.className = 'scramble-btn';
-            btn.innerText = syl.text;
-            // 练习按钮保留对应文字颜色，加深视觉记忆
-            btn.style.color = syl.colorText;
-            
-            btn.onclick = function() {
-                speakText(syl.text, 1);
-                practiceTarget.push(syl.text);
-                this.classList.add('selected');
-                checkPractice();
-            };
-            area.appendChild(btn);
-        });
-    }
-
-    function checkPractice() {
-        const currentSpelling = practiceTarget.join('');
-        if (currentSpelling === currentWord) {
-            document.getElementById('message').innerText = '🎉 拼写正确！Awesome!';
-            setTimeout(() => speakFullWord(), 500); // 拼对后再次播放整词
-        } else if (currentWord.startsWith(currentSpelling)) {
-            document.getElementById('message').innerText = '继续...';
-        } else {
-            document.getElementById('message').innerText = '❌ 顺序不对哦，重试一下！';
-            document.getElementById('message').style.color = '#ef4444';
-            setTimeout(renderPractice, 1200); // 1.2秒后重置练习
-        }
-    }
-
-    function speakFullWord() {
-        if (currentData && currentData.audio) {
-            // 如果配置了本地音频，优先播放 MP3
-            const audioObj = new Audio(currentData.audio);
-            audioObj.play().catch(e => {
-                console.log("本地音频播放失败（可能文件没放在同文件夹），自动切换为系统发音");
-                speakText(currentWord, 1);
-            });
-        } else {
-            // 没有配置 MP3，调用浏览器自带 TTS
-            speakText(currentWord, 1);
-        }
-    }
-
-    function speakText(text, rate) {
-        // 调用浏览器内置的文字转语音引擎
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US'; 
-        utterance.rate = rate; // rate 为语速
-        window.speechSynthesis.speak(utterance);
-    }
-</script>
-
-</body>
-</html>
+    <div class="word-selector" id="wordSelector">
+        <button class="word-btn" id="btn-glasses" onclick="startWord('glasses')">glasses</button>
+        <button class="word-btn" id="btn-nep
