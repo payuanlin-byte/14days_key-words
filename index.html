@@ -32,7 +32,6 @@
         .meta-display { display: flex; gap: 15px; justify-content: center; align-items: center; font-size: 20px; color: #64748b; margin-bottom: 20px; font-family: 'Arial', sans-serif; }
         .pos-tag { background-color: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 16px; font-weight: bold; color: #475569; }
         
-        /* 独立音频控制栏样式 */
         .audio-bar { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px; background-color: #f8fafc; padding: 10px; border-radius: 12px; }
         .play-btn { background-color: #3b82f6; color: white; border: none; padding: 8px 16px; font-size: 16px; border-radius: 8px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 5px; }
         .play-btn:hover { background-color: #2563eb; }
@@ -97,7 +96,6 @@
             <span id="s1-translation"></span>
         </div>
         
-        <!-- 首页带语速的音频控制 -->
         <div class="audio-bar">
             <button class="play-btn" onclick="playMainAudio()">🔊 听发音</button>
             <select class="speed-select" id="speed-step1">
@@ -157,7 +155,6 @@
             <div id="s6-context-phonetic" style="font-family: Arial; margin-bottom: 5px;"></div>
             <div id="s6-context-translation" style="font-weight: bold; color: #333; margin-bottom: 15px;"></div>
             
-            <!-- 语境页带语速的音频控制 -->
             <div class="audio-bar" style="margin-bottom: 0;">
                 <button class="play-btn" onclick="playContextAudio()">🔊 听句子</button>
                 <select class="speed-select" id="speed-step6">
@@ -175,13 +172,13 @@
 <script>
     const wordData = {
         'glasses': {
-            audio: 'glasses.mp3', 
+            audio: 'glasses.mp3', // 确保你的主音频文件名为 glasses.mp3
             phonetic: '[ˈɡlæsɪz]',
             pos: '名词',
             translation: '眼镜',
             syllables: [
-                { text: 'glass', phonetic: '[ɡlæs]', color: '#ef4444', bg: '#fee2e2' },
-                { text: 'es', phonetic: '[ɪz]', color: '#3b82f6', bg: '#dbeafe' }
+                { text: 'glass', phonetic: '[ɡlæs]', color: '#ef4444', bg: '#fee2e2', audio: 'glass.mp3' },
+                { text: 'es', phonetic: '[ɪz]', color: '#3b82f6', bg: '#dbeafe', audio: 'es.mp3' }
             ],
             images: ['👟', '👓', '🎩'],
             correctImgIndex: 1, 
@@ -198,8 +195,8 @@
             pos: '名词',
             translation: '侄子；外甥',
             syllables: [
-                { text: 'ne', phonetic: '[ne]', color: '#f59e0b', bg: '#fef3c7' },
-                { text: 'phew', phonetic: '[fjuː]', color: '#10b981', bg: '#d1fae5' }
+                { text: 'ne', phonetic: '[ne]', color: '#f59e0b', bg: '#fef3c7', audio: 'ne.mp3' },
+                { text: 'phew', phonetic: '[fjuː]', color: '#10b981', bg: '#d1fae5', audio: 'phew.mp3' }
             ],
             images: ['👩', '👦', '🐶'],
             correctImgIndex: 1,
@@ -216,9 +213,9 @@
             pos: '名词',
             translation: '电脑',
             syllables: [
-                { text: 'com', phonetic: '[kəm]', color: '#8b5cf6', bg: '#ede9fe' },
-                { text: 'pu', phonetic: '[ˈpjuː]', color: '#ec4899', bg: '#fce7f3' },
-                { text: 'ter', phonetic: '[tər]', color: '#14b8a6', bg: '#ccfbf1' }
+                { text: 'com', phonetic: '[kəm]', color: '#8b5cf6', bg: '#ede9fe', audio: 'com.mp3' },
+                { text: 'pu', phonetic: '[ˈpjuː]', color: '#ec4899', bg: '#fce7f3', audio: 'pu.mp3' },
+                { text: 'ter', phonetic: '[tər]', color: '#14b8a6', bg: '#ccfbf1', audio: 'ter.mp3' }
             ],
             images: ['📺', '💻', '📱'],
             correctImgIndex: 1,
@@ -234,9 +231,8 @@
     let currentWord = '';
     let currentData = null;
     let s3TargetArr = [];
-    let activeAudioObj = null; // 用于追踪当前播放的音频，避免重复播放重叠
+    let activeAudioObj = null; 
 
-    // 统一的带语速音频播放函数
     function playAudio(filename, fallbackText, rate = 1) {
         try {
             if (activeAudioObj) {
@@ -245,9 +241,8 @@
             }
             
             activeAudioObj = new Audio(filename);
-            activeAudioObj.playbackRate = rate; // 调节HTML5音频语速
+            activeAudioObj.playbackRate = rate; 
             activeAudioObj.play().catch(e => {
-                // 回退到TTS时也带上语速
                 let utterance = new SpeechSynthesisUtterance(fallbackText);
                 utterance.lang = 'en-US';
                 utterance.rate = rate; 
@@ -258,13 +253,11 @@
         }
     }
 
-    // 首页的播放按钮触发
     function playMainAudio() {
         let speed = parseFloat(document.getElementById('speed-step1').value);
         playAudio(currentData.audio, currentWord, speed);
     }
 
-    // 语境页的播放按钮触发
     function playContextAudio() {
         let speed = parseFloat(document.getElementById('speed-step6').value);
         let fullText = currentData.context.text.replace('[BLANK]', currentWord);
@@ -279,7 +272,6 @@
         document.querySelectorAll('.step-container').forEach(el => el.style.display = 'none');
         document.getElementById('step12').style.display = 'block';
         
-        // 重置下拉框为正常语速
         document.getElementById('speed-step1').value = "1.0";
         document.getElementById('speed-step6').value = "1.0";
         
@@ -296,7 +288,7 @@
             div.style.color = s.color;
             div.style.backgroundColor = s.bg;
             div.innerHTML = `<div class="syl-text">${s.text}</div><div class="syl-phonetic">${s.phonetic}</div>`;
-            div.onclick = () => playAudio('none.mp3', s.text, 0.7);
+            div.onclick = () => playAudio(s.audio, s.text, 0.7); // 调用对应的音节音频
             sylBox.appendChild(div);
         });
 
@@ -328,7 +320,7 @@
             btn.innerText = s.text;
             btn.style.color = s.color;
             btn.onclick = function() {
-                playAudio('none.mp3', s.text, 1);
+                playAudio(s.audio, s.text, 1); // 调用对应的音节音频
                 s3TargetArr.push(s.text);
                 this.classList.add('selected');
                 
@@ -383,7 +375,7 @@
                 this.style.color = s.color;
                 this.style.backgroundColor = s.bg;
                 this.classList.add('revealed');
-                playAudio('none.mp3', s.text, 0.8);
+                playAudio(s.audio, s.text, 0.8); // 调用对应的音节音频
                 
                 revealedCount++;
                 
