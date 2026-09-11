@@ -3,35 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tab 1: New Words 学习动线测试</title>
+    <title>Tab 1: New Words 学习动线</title>
     <style>
         body { font-family: 'Comic Sans MS', 'Segoe UI', Tahoma, sans-serif; background-color: #f0fdf4; color: #333; display: flex; flex-direction: column; align-items: center; padding: 20px; }
         .container { background: white; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); padding: 30px; width: 100%; max-width: 600px; text-align: center; min-height: 400px;}
+        
         .tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
         .tab-btn { padding: 10px 20px; font-size: 18px; font-weight: bold; border: none; background: transparent; color: #94a3b8; cursor: pointer; }
         .tab-btn.active { color: #3b82f6; border-bottom: 3px solid #3b82f6; }
+        
         .word-selector { margin-bottom: 20px; }
         .word-btn { background-color: #eff6ff; color: #3b82f6; border: 2px solid #bfdbfe; border-radius: 10px; padding: 10px 15px; margin: 0 5px; cursor: pointer; font-size: 16px; transition: 0.2s; }
         .word-btn:hover { background-color: #dbeafe; }
         .word-btn.completed { background-color: #d1fae5; color: #059669; border-color: #6ee7b7; }
-        .step-container { display: none; animation: fadeIn 0.5s ease-in-out; }
+        
+        .step-container { display: none; animation: fadeIn 0.4s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* 错误晃动动画 */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-8px); }
+        }
+        .shake-error { animation: shake 0.4s; border-color: #ef4444 !important; background-color: #fee2e2 !important; }
+
         .word-display { font-size: 54px; font-weight: 800; color: #1e293b; letter-spacing: 2px; margin: 10px 0; }
-        .phonetic-display { font-size: 20px; color: #64748b; margin-bottom: 20px; font-family: 'Arial', sans-serif; }
+        .meta-display { display: flex; gap: 15px; justify-content: center; align-items: center; font-size: 20px; color: #64748b; margin-bottom: 20px; font-family: 'Arial', sans-serif; }
+        .pos-tag { background-color: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 16px; font-weight: bold; color: #475569; }
+        
         .syllable-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .syllable-box { padding: 10px 20px; border-radius: 12px; font-size: 28px; font-weight: bold; cursor: pointer; transition: 0.2s; border: 2px solid transparent; }
+        .syllable-box { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: 0.2s; border: 2px solid transparent; line-height: 1.2; }
         .syllable-box:hover { transform: scale(1.05); }
+        .syl-text { font-size: 28px; font-weight: bold; }
+        .syl-phonetic { font-size: 18px; font-family: 'Arial', sans-serif; margin-top: 4px; }
+
         .scramble-btn { background-color: white; color: #333; border: 2px solid #e2e8f0; margin: 5px; font-size: 24px; padding: 10px 20px; border-radius: 10px; cursor: pointer; }
         .scramble-btn.selected { visibility: hidden; }
+        
         .hint-blocks { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-        .hint-block { width: 60px; height: 50px; background-color: #cbd5e1; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; border-radius: 8px; cursor: pointer; }
+        .hint-block { width: 65px; height: 60px; background-color: #cbd5e1; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; line-height: 1.1; }
         .hint-block.revealed { background-color: transparent; border: 2px solid #e2e8f0; }
-        .type-input { font-size: 24px; padding: 10px; text-align: center; width: 60%; border: 2px dashed #94a3b8; border-radius: 10px; outline: none; margin-bottom: 10px; }
+        .hint-block.locked { opacity: 0.4; cursor: not-allowed; }
+        
+        .input-row { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .type-input { font-size: 24px; padding: 10px; text-align: center; width: 50%; border: 2px dashed #94a3b8; border-radius: 10px; outline: none; }
+        .type-input:focus { border-color: #3b82f6; }
+        .audio-btn { border: none; background: #e0e7ff; color: #3b82f6; border-radius: 50%; width: 45px; height: 45px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .audio-btn:hover { background: #c7d2fe; transform: scale(1.1); }
+
         .img-options { display: flex; justify-content: center; gap: 20px; margin-top: 20px; }
-        .img-card { font-size: 60px; padding: 20px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px; cursor: pointer; }
-        .context-box { font-size: 26px; padding: 30px; background: #fffbeb; border: 2px solid #fde68a; border-radius: 15px; margin-top: 20px; cursor: pointer; }
+        .img-card { font-size: 60px; padding: 20px; background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 15px; cursor: pointer; transition: 0.2s; }
+        .img-card:hover { transform: scale(1.05); }
+
+        .context-box { font-size: 28px; padding: 30px; background: #fffbeb; border: 2px solid #fde68a; border-radius: 15px; margin-top: 20px; cursor: pointer; }
         .blank-space { display: inline-block; width: 100px; border-bottom: 3px solid #333; height: 30px; margin: 0 10px; vertical-align: middle; }
         .filled-word { color: #2563eb; font-weight: bold; text-decoration: underline; }
+        .context-meta { display: none; margin-top: 20px; font-size: 20px; color: #64748b; line-height: 1.6; }
+
         .action-btn { background-color: #10b981; color: white; border: none; padding: 12px 25px; font-size: 18px; border-radius: 50px; cursor: pointer; margin-top: 20px; font-weight: bold; }
         .feedback { font-size: 20px; font-weight: bold; color: #ef4444; margin-top: 15px; min-height: 30px; }
     </style>
@@ -44,7 +74,6 @@
         <button class="tab-btn" onclick="alert('即将开发：盲猜与复习模式')">🛡️ Tab 2: Review</button>
     </div>
 
-    <!-- 确保这里的单词和下面数据字典里的名字一模一样 -->
     <div class="word-selector" id="wordSelector">
         <button class="word-btn" id="btn-glasses" onclick="startWord('glasses')">glasses</button>
         <button class="word-btn" id="btn-nephew" onclick="startWord('nephew')">nephew</button>
@@ -53,80 +82,129 @@
 
     <hr style="border: 0; border-top: 2px dashed #e2e8f0; margin-bottom: 20px;">
 
-    <!-- 学习步骤展示区 -->
+    <!-- 步骤 1 & 2 -->
     <div id="step12" class="step-container">
         <div class="word-display" id="s1-word"></div>
-        <div class="phonetic-display" id="s1-phonetic"></div>
-        <p style="color: #94a3b8; font-size: 14px;">(Step 1 & 2) 点击音节听发音：</p>
+        <div class="meta-display">
+            <span class="pos-tag" id="s1-pos"></span>
+            <span id="s1-phonetic"></span>
+            <span id="s1-translation"></span>
+        </div>
+        <p style="color: #94a3b8; font-size: 14px;">点击音节听发音：</p>
         <div class="syllable-container" id="s1-syllables"></div>
         <button class="action-btn" onclick="goToStep(3)">下一步：重组拼写 ➡️</button>
     </div>
 
+    <!-- 步骤 3 -->
     <div id="step3" class="step-container">
-        <h3>(Step 3) 按顺序点击复原单词</h3>
-        <div class="syllable-container" id="s3-target" style="min-height: 50px; background: #f8fafc; border-radius: 10px;"></div>
+        <h3>按顺序点击复原单词</h3>
+        <div class="syllable-container" id="s3-target" style="min-height: 60px; background: #f8fafc; border-radius: 10px; align-items: center;"></div>
         <div id="s3-options"></div>
         <div class="feedback" id="s3-msg"></div>
+        
+        <!-- 拼写正确后显示的区域 -->
+        <div id="s3-success-area" style="display:none; margin-top:15px;">
+            <button class="action-btn" onclick="playAudio(currentData.audio, currentWord)" style="background-color:#3b82f6; margin-right: 15px;">🔊 听发音</button>
+            <span id="s3-success-phonetic" style="font-size:22px; color:#475569; font-family:'Arial'; font-weight:bold; vertical-align: middle;"></span>
+            <br>
+            <button class="action-btn" onclick="goToStep(4)">进入默写 ➡️</button>
+        </div>
     </div>
 
+    <!-- 步骤 4 -->
     <div id="step4" class="step-container">
-        <h3>(Step 4) 默写挑战</h3>
+        <h3>默写挑战</h3>
         <p style="color: #94a3b8; font-size: 14px;">点击上方数字方块获取局部提示</p>
         <div class="hint-blocks" id="s4-hints"></div>
-        <input type="text" class="type-input" id="s4-input" placeholder="输入拼写..." autocomplete="off">
-        <br><button class="action-btn" onclick="checkStep4()">提交答案</button>
+        <div class="input-row">
+            <input type="text" class="type-input" id="s4-input" placeholder="输入拼写..." autocomplete="off">
+            <!-- MP3 求助按钮 -->
+            <button class="audio-btn" onclick="playAudio(currentData.audio, currentWord)">🔊</button>
+        </div>
+        <button class="action-btn" onclick="checkStep4()">提交答案</button>
         <div class="feedback" id="s4-msg"></div>
     </div>
 
+    <!-- 步骤 5 -->
     <div id="step5" class="step-container">
-        <h3>(Step 5) 哪一个是它的意思？</h3>
+        <h3>哪一个是它的意思？</h3>
         <div class="img-options" id="s5-options"></div>
         <div class="feedback" id="s5-msg"></div>
     </div>
 
+    <!-- 步骤 6 -->
     <div id="step6" class="step-container">
-        <h3>(Step 6) 读句子</h3>
+        <h3>读一读</h3>
         <p style="color: #94a3b8; font-size: 14px;">点击空白处，填入单词并跟读！</p>
         <div class="context-box" id="s6-context" onclick="completeContext()"></div>
+        
+        <!-- 填空后显示的翻译和音标 -->
+        <div class="context-meta" id="s6-meta">
+            <div id="s6-context-phonetic" style="font-family: Arial; margin-bottom: 5px;"></div>
+            <div id="s6-context-translation" style="font-weight: bold; color: #333;"></div>
+        </div>
+        
         <div class="feedback" id="s6-msg"></div>
     </div>
 </div>
 
 <script>
+    // 词库配置：加入了翻译、词性、精准的上下文和对应的MP3
     const wordData = {
         'glasses': {
-            audio: 'glassess.mp3', // 这里的音频文件名保留了你说的 glassess.mp3
+            audio: 'glassess.mp3', // 保持你之前的命名
             phonetic: '[ˈɡlæsɪz]',
+            pos: '名词',
+            translation: '眼镜',
             syllables: [
-                { text: 'glass', color: '#ef4444', bg: '#fee2e2' },
-                { text: 'es', color: '#3b82f6', bg: '#dbeafe' }
+                { text: 'glass', phonetic: '[ɡlæs]', color: '#ef4444', bg: '#fee2e2' },
+                { text: 'es', phonetic: '[ɪz]', color: '#3b82f6', bg: '#dbeafe' }
             ],
             images: ['👟', '👓', '🎩'],
             correctImgIndex: 1, 
-            context: "The actor was in his [BLANK]."
+            context: {
+                text: "sun [BLANK]",
+                translation: "太阳眼镜",
+                phonetic: "[sʌn ˈɡlæsɪz]",
+                audio: "sun_glasses.mp3"
+            }
         },
         'nephew': {
             audio: 'nephew.mp3',
             phonetic: '[ˈnefjuː]',
+            pos: '名词',
+            translation: '侄子；外甥',
             syllables: [
-                { text: 'neph', color: '#f59e0b', bg: '#fef3c7' },
-                { text: 'ew', color: '#10b981', bg: '#d1fae5' }
+                { text: 'neph', phonetic: '[nef]', color: '#f59e0b', bg: '#fef3c7' },
+                { text: 'ew', phonetic: '[juː]', color: '#10b981', bg: '#d1fae5' }
             ],
             images: ['👩', '👦', '🐶'],
             correctImgIndex: 1,
-            context: "My sister's son is my [BLANK]."
+            context: {
+                text: "He is my [BLANK].",
+                translation: "他是我的侄子。",
+                phonetic: "[hiː ɪz maɪ ˈnefjuː]",
+                audio: "He_is_my_nephew.mp3"
+            }
         },
         'computer': {
             audio: 'computer.mp3',
             phonetic: '[kəmˈpjuːtər]',
+            pos: '名词',
+            translation: '电脑',
             syllables: [
-                { text: 'com', color: '#8b5cf6', bg: '#ede9fe' },
-                { text: 'pu', color: '#ec4899', bg: '#fce7f3' },
-                { text: 'ter', color: '#14b8a6', bg: '#ccfbf1' }
+                { text: 'com', phonetic: '[kəm]', color: '#8b5cf6', bg: '#ede9fe' },
+                { text: 'pu', phonetic: '[ˈpjuː]', color: '#ec4899', bg: '#fce7f3' },
+                { text: 'ter', phonetic: '[tər]', color: '#14b8a6', bg: '#ccfbf1' }
             ],
             images: ['📺', '💻', '📱'],
             correctImgIndex: 1,
-            context: "I play games on my [BLANK]."
+            context: {
+                text: "a [BLANK]",
+                translation: "一台电脑",
+                phonetic: "[ə kəmˈpjuːtər]",
+                audio: "a_computer.mp3"
+            }
         }
     };
 
@@ -144,43 +222,37 @@
                 window.speechSynthesis.speak(utterance);
             });
         } catch(error) {
-            console.log("音频系统异常:", error);
+            console.log("音频异常");
         }
     }
 
     function startWord(word) {
-        try {
-            currentWord = word;
-            currentData = wordData[word];
-            
-            // 安全检测机制：如果字典里没这个词，直接弹窗报错，而不是卡死
-            if (!currentData) {
-                alert("⚠️ 系统报错：在数据字典中找不到名为 [" + word + "] 的数据。请检查拼写是否一致！");
-                return;
-            }
-            
-            document.querySelectorAll('.step-container').forEach(el => el.style.display = 'none');
-            document.getElementById('step12').style.display = 'block';
-            
-            document.getElementById('s1-word').innerText = word;
-            document.getElementById('s1-phonetic').innerText = currentData.phonetic;
-            
-            let sylBox = document.getElementById('s1-syllables');
-            sylBox.innerHTML = '';
-            currentData.syllables.forEach(s => {
-                let span = document.createElement('span');
-                span.className = 'syllable-box';
-                span.innerText = s.text;
-                span.style.color = s.color;
-                span.style.backgroundColor = s.bg;
-                span.onclick = () => playAudio('none.mp3', s.text, 0.7);
-                sylBox.appendChild(span);
-            });
+        currentWord = word;
+        currentData = wordData[word];
+        if (!currentData) return;
+        
+        document.querySelectorAll('.step-container').forEach(el => el.style.display = 'none');
+        document.getElementById('step12').style.display = 'block';
+        
+        document.getElementById('s1-word').innerText = word;
+        document.getElementById('s1-phonetic').innerText = currentData.phonetic;
+        document.getElementById('s1-pos').innerText = currentData.pos;
+        document.getElementById('s1-translation').innerText = currentData.translation;
+        
+        let sylBox = document.getElementById('s1-syllables');
+        sylBox.innerHTML = '';
+        currentData.syllables.forEach(s => {
+            let div = document.createElement('div');
+            div.className = 'syllable-box';
+            div.style.color = s.color;
+            div.style.backgroundColor = s.bg;
+            // 同时渲染单词部分和对应的音标
+            div.innerHTML = `<div class="syl-text">${s.text}</div><div class="syl-phonetic">${s.phonetic}</div>`;
+            div.onclick = () => playAudio('none.mp3', s.text, 0.7);
+            sylBox.appendChild(div);
+        });
 
-            setTimeout(() => playAudio(currentData.audio, currentWord), 500);
-        } catch (error) {
-            alert("⚠️ 页面发生错误: " + error.message + "。这通常是因为代码某处少了一个逗号或引号。");
-        }
+        setTimeout(() => playAudio(currentData.audio, currentWord), 500);
     }
 
     function goToStep(stepNum) {
@@ -196,6 +268,8 @@
         s3TargetArr = [];
         document.getElementById('s3-target').innerHTML = '';
         document.getElementById('s3-msg').innerText = '';
+        document.getElementById('s3-success-area').style.display = 'none';
+        
         let optionsBox = document.getElementById('s3-options');
         optionsBox.innerHTML = '';
         
@@ -214,7 +288,10 @@
                 targetSpan.innerText = s.text;
                 targetSpan.style.color = s.color;
                 targetSpan.style.margin = '0 2px';
+                targetSpan.style.fontSize = '32px';
+                targetSpan.style.fontWeight = 'bold';
                 document.getElementById('s3-target').appendChild(targetSpan);
+                
                 checkStep3();
             };
             optionsBox.appendChild(btn);
@@ -226,8 +303,12 @@
         if (currentSpelling === currentWord) {
             document.getElementById('s3-msg').style.color = '#10b981';
             document.getElementById('s3-msg').innerText = '🎉 拼写正确！';
+            
+            // 拼写正确后，展示MP3按钮和整词音标（不自动跳下一关，等待孩子点击）
+            document.getElementById('s3-success-area').style.display = 'block';
+            document.getElementById('s3-success-phonetic').innerText = currentData.phonetic;
             playAudio(currentData.audio, currentWord);
-            setTimeout(() => goToStep(4), 1500);
+            
         } else if (!currentWord.startsWith(currentSpelling)) {
             document.getElementById('s3-msg').style.color = '#ef4444';
             document.getElementById('s3-msg').innerText = '❌ 顺序错了，重新试试！';
@@ -241,16 +322,33 @@
         let hintBox = document.getElementById('s4-hints');
         hintBox.innerHTML = '';
         
+        let revealedCount = 0;
+        let maxReveal = currentData.syllables.length - 1; // N-1 规则
+
         currentData.syllables.forEach((s, index) => {
             let block = document.createElement('div');
             block.className = 'hint-block';
             block.innerText = index + 1;
             block.onclick = function() {
-                this.innerText = s.text;
+                // 如果已经被点开，或者被锁定，则不作反应
+                if (this.classList.contains('revealed') || this.classList.contains('locked')) return;
+                
+                this.innerHTML = `<div style="font-size:20px;">${s.text}</div>`;
                 this.style.color = s.color;
                 this.style.backgroundColor = s.bg;
                 this.classList.add('revealed');
                 playAudio('none.mp3', s.text, 0.8);
+                
+                revealedCount++;
+                
+                // 如果点开的数量达到了上限，锁定剩下的方块
+                if (revealedCount >= maxReveal) {
+                    Array.from(hintBox.children).forEach(child => {
+                        if (!child.classList.contains('revealed')) {
+                            child.classList.add('locked');
+                        }
+                    });
+                }
             };
             hintBox.appendChild(block);
         });
@@ -279,13 +377,17 @@
             let card = document.createElement('div');
             card.className = 'img-card';
             card.innerText = img;
-            card.onclick = () => {
+            card.onclick = function() {
                 if(index === currentData.correctImgIndex) {
                     document.getElementById('s5-msg').style.color = '#10b981';
                     document.getElementById('s5-msg').innerText = '✨ 选对啦！';
                     playAudio(currentData.audio, currentWord);
                     setTimeout(() => goToStep(6), 1500);
                 } else {
+                    // 选错时触发CSS晃动动画
+                    this.classList.add('shake-error');
+                    setTimeout(() => this.classList.remove('shake-error'), 400); // 400ms后移除类，以便下次点击继续晃动
+                    
                     document.getElementById('s5-msg').style.color = '#ef4444';
                     document.getElementById('s5-msg').innerText = '不对哦，再想一想这是什么意思？';
                 }
@@ -296,9 +398,15 @@
 
     function initStep6() {
         document.getElementById('s6-msg').innerText = '';
-        let sentence = currentData.context;
+        document.getElementById('s6-meta').style.display = 'none'; // 隐藏翻译和音标
+        
+        let sentence = currentData.context.text;
         let htmlStr = sentence.replace('[BLANK]', `<span class="blank-space" id="sentence-blank"></span>`);
         document.getElementById('s6-context').innerHTML = htmlStr;
+        
+        // 预设好翻译和音标，等待填空后显示
+        document.getElementById('s6-context-phonetic').innerText = currentData.context.phonetic;
+        document.getElementById('s6-context-translation').innerText = currentData.context.translation;
     }
 
     function completeContext() {
@@ -309,11 +417,14 @@
             filled.innerText = currentWord;
             blank.replaceWith(filled);
             
-            let fullSentenceText = currentData.context.replace('[BLANK]', currentWord);
-            playAudio('none.mp3', fullSentenceText, 0.9);
+            // 显示下方的翻译和音标
+            document.getElementById('s6-meta').style.display = 'block';
+            
+            // 播放指定的短语/句子音频
+            playAudio(currentData.context.audio, currentData.context.text.replace('[BLANK]', currentWord));
             
             document.getElementById('s6-msg').style.color = '#10b981';
-            document.getElementById('s6-msg').innerText = '🎉 太棒了！这个单词你已经完全掌握！';
+            document.getElementById('s6-msg').innerText = '🎉 任务完成！';
             document.getElementById('btn-' + currentWord).classList.add('completed');
         }
     }
